@@ -1,0 +1,5 @@
+   in_fd = open(argv[1], O_RDONLY);               /* open source file */
+   assert(in_fd > 0 );                            /* error in open */
+   new_file = open(argv[2], O_RDWR|O_CREAT|O_EXCL, S_IRWXU );
+
+   while (1) {                                 /* loop until done, or an error */

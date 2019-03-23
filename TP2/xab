@@ -1,0 +1,5 @@
+#include <unistd.h>
+
+/* File display program. Minimal error checking */
+#define BUF_SIZE 200
+

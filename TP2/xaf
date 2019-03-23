@@ -1,0 +1,5 @@
+   }
+   close( in_fd);
+   close(new_file);                              /* close files */
+   if( rd_cnt == 0 )                              /* no error on last read */
+      exit(0);

@@ -1,0 +1,3 @@
+   else                                           /* error on last read */
+      exit(5);
+}

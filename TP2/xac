@@ -1,0 +1,5 @@
+int main(int argc, char *argv[]) {
+   int in_fd, rd_cnt, wr_cnt, new_file;
+   char buf[BUF_SIZE];
+   if (argc != 3)                                 /* incorrect number of args */
+      exit(1);

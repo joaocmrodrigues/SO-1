@@ -1,0 +1,5 @@
+      rd_cnt = read(in_fd, buf, BUF_SIZE);        /* read from source */
+      if(rd_cnt <= 0)
+         break;                                   /* end of file, or error */
+      wr_cnt = write(new_file, buf, rd_cnt); /* write block read */
+      assert (wr_cnt >= 0);                          /* error writing */

@@ -1,4 +1,3 @@
-
 struct stack_el {  // element of a stack
 	char *str;
 	int n;
@@ -16,4 +15,5 @@ struct stack *init(int size);	// initialize stack. Returns pointer to
 int push(struct stack *sp, struct stack_el *el); // returns 0 if the stack is full, and 1 otherwise
 struct stack_el *pop(struct stack *sp); // returns NULL if the stack is empty
 void show(struct stack *sp);
-void f(struct stack *sp);	// frees all data structures allocated
+void free(struct stack *sp);	// frees all data structures allocated
+	

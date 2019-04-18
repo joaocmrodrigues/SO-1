@@ -14,15 +14,16 @@
 
 void *firstthread(void * arg){
 
-	int pid,tid, op;
+	int pid,tid;
 	pid = getpid();
 	tid = pthread_self();
-	printf(" O PID da 1ª thread é : %d\n", pid);
-	printf(" O TID da 1ª thread é : %d\n", tid);
-
 	int *output = malloc(sizeof(int));
-	//op = atoi(arg);
-	*output = arg;
+	*output = *((int *) arg);
+
+	printf(" O PID da %dª thread é : %d\n",*output, pid);
+	printf(" O TID da %dª thread é : %d\n",*output, tid);
+
+	
 
 	return (void * )  output;
 }
@@ -31,30 +32,33 @@ void *firstthread(void * arg){
 
 int main(int argc , char * argv[]){
 
-	int NUMBER_OF_THREADS = atoi(argv[1]);
+	int NUMBER_OF_THREADS = atoi(argv[1]), i;
 
 	pthread_t t[NUMBER_OF_THREADS];
 
 	int rc[NUMBER_OF_THREADS], *output, main_pid;
 
-		for(int i= 0 ; i< NUMBER_OF_THREADS ; i++){
-			rc[i] = pthread_create(&t[i], NULL, firstthread , (void *)&i );
+		for( i= 1; i< NUMBER_OF_THREADS ; i++){
+
+			int *arg = malloc(sizeof(*arg));
+
+			*arg = i;
+
+			rc[i] = pthread_create(&t[i], NULL, firstthread , arg );
+
 			assert(rc[i] == 0 );
-			
+
 			pthread_join(t[i], (void **) &output);
 
 			printf(" resultado thread %d: %d\n",i, *output);
+			
 		}
 
 
 
 
-
-
-
-
-main_pid = getpid();
-printf( " main pid é : %d\n", main_pid);
+	main_pid = getpid();
+	printf( " main pid é : %d\n", main_pid);
 
 
 

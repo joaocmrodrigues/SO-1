@@ -131,24 +131,26 @@ void *parent(void *arg) {	// parent bird thread
 	
 		while( pa->r >= 0 ){
 
-			if(foodbits == 0){
+			
 				pthread_mutex_lock(&mut);
+				while(foodbits > 0) pthread_cond_wait(&var, &mut);
 				printf ("\n\tParent received args f (%d), r (%ld), working (%d)", pa->f , pa->r  , pa->working );
 
 				pa->working = 1;
 				foodbits = pa->f;
 				pa->r--;
 				pa->working = 0;
+				pthread_cond_signal(&var);
 				pthread_mutex_unlock(&mut);
-			}
 			
-		pa->working = 0;	
+			
+			
 
 
 		}
 
 	finish = 1;
-
+	pthread_cond_destroy(&var);
 // Usar: printf ("\n\tParent received args f (%d), r (%ld), working (%d)", ? , ? , ? );
 	
 	printf ("\n\tParent finishing");
@@ -166,17 +168,19 @@ void *baby(void *arg){	// baby thread
 
 	while(finish != 1){
 
-		if(foodbits >0 ){
+		
 			pthread_mutex_lock(&mut);
+			while(foodbits == 0  ) pthread_cond_wait(&var, &mut);
 			ba->eating=1;
 			foodbits--;
 			count++;
 			ba->eating = 0;
+			pthread_cond_signal(&var);
 			pthread_mutex_unlock(&mut);
 
-		}
 		
-		ba->eating = 0;
+		
+		
 
 		
 	}
@@ -194,6 +198,7 @@ void *baby(void *arg){	// baby thread
 
 
 // Usar: return (?);
+	 pthread_cond_destroy(&var);
 	 return (void*)output;
 
 

@@ -18,13 +18,13 @@ Invocation example:
 int finish = 0;	// termination of simulation (flagged by parent bird)
 int foodbits = 0;	// is the current number of bits of food in the "food-teat"
 
-struct checkerarg {	// conveys info to checker
+/*struct checkerarg {	// conveys info to checker
 	int f;	// number of bits of food of each refill
 	long r;	// number of refills - parent bird can then retire!
 	int *working;	// ptr to binary state of parent bird
 	int *eating;	// ptr to number of babies that are eating at a time
 	pthread_mutex_t *mut; // for overall concurrency control to shared data
-};
+};*/
 struct parentarg {	// conveys info to parent bird
 	int f;	// number of bits of food of each refill
 	long r;	// number of refills - parent bird can then retire!
@@ -35,7 +35,7 @@ struct babyarg {	// conveys info to baby birds
 	int *eating;	// ptr to number of babies that are eating at a time
 };
 
-void *checker(void *);	// checker thread
+//void *checker(void *);	// checker thread
 void *parent(void *);	// parent thread
 void *baby(void *);	// baby thread
 
@@ -49,9 +49,10 @@ setbuf(stdout, NULL);
 	int working = 0;	// represents the binary state of parent bird:
 	int eating = 0;	// number of babies that are eating at a time
 	struct parentarg pa;	// conveys info to parent bird (and checker!)
-	struct checkerarg ca;	// conveys info to parent bird (and checker!)
+	//struct checkerarg ca;	// conveys info to parent bird (and checker!)
 	struct babyarg ba[MAXBABIES];	// conveys baby identification
-	pthread_t tchecker, tparent, tbaby[MAXBABIES];
+
+	pthread_t  tparent, tbaby[MAXBABIES];//tchecker,
 
 if( argc != 4) {
 	printf("Program invoked with wrong number of arguments.\n");
@@ -68,7 +69,7 @@ printf("\nSimulation started\n");
 // a preencher com o seu código:
 
 // criar thread checker (também SEM passar argumentos!)
-	 pthread_create(&tchecker, NULL , checker , NULL );
+	 //pthread_create(&tchecker, NULL , checker , NULL );
 
 
 // criar thread parent bird

@@ -23,13 +23,13 @@ long count = 0 ;
 int finish = 0;	// termination of simulation (flagged by parent bird)
 int foodbits = 0;	// is the current number of bits of food in the "food-teat"
 
-struct checkerarg {	// conveys info to checker
+/*struct checkerarg {	// conveys info to checker
 	int f;	// number of bits of food of each refill
 	long r;	// number of refills - parent bird can then retire!
 	int *working;	// ptr to binary state of parent bird
 	int *eating;	// ptr to number of babies that are eating at a time
 	pthread_mutex_t *mut; // for overall concurrency control to shared data
-};
+};*/
 struct parentarg {	// conveys info to parent bird
 	int f;	// number of bits of food of each refill
 	long r;	// number of refills - parent bird can then retire!
@@ -40,7 +40,7 @@ struct babyarg {	// conveys info to baby birds
 	int *eating;	// ptr to number of babies that are eating at a time
 };
 
-void *checker(void *);	// checker thread
+//void *checker(void *);	// checker thread
 void *parent(void *);	// parent thread
 void *baby(void *);	// baby thread
 
@@ -54,7 +54,7 @@ setbuf(stdout, NULL);
 	int working = 0;	// represents the binary state of parent bird:
 	int eating = 0;	// number of babies that are eating at a time
 	struct parentarg pa;	// conveys info to parent bird (and checker!)
-	struct checkerarg ca;	// conveys info to parent bird (and checker!)
+	//struct checkerarg ca;	// conveys info to parent bird (and checker!)
 	struct babyarg ba[MAXBABIES];	// conveys baby identification
 	pthread_t tchecker, tparent, tbaby[MAXBABIES];
 
@@ -73,25 +73,24 @@ printf("\nSimulation started\n");
 // a preencher com o seu código:
 
 // preparar args e criar thread checker (aqui, pôr o membro mut a NULL!)
-ca.f = F;
+/*ca.f = F;
 ca.r = R;
 ca.working = working;
 ca.eating = eating ;
-ca.mut = NULL;
 
-pthread_create(&tchecker, NULL, checker , &pa);
+pthread_create(&tchecker, NULL, checker , &ca);*/
 // preparar args e criar thread parent bird
 pa.f = F;
 pa.r = R;
 pa.working = working;
 
-pthread_create(&tparent, NULL , parent, &ca);
+pthread_create(&tparent, NULL , parent, &pa);
 // preparar args e criar threads baby birds
 for(int i = 0 ; i < B ; i++){
 
 	ba[i].id = i;
 	ba[i].eating = eating;
-	pthread_create(&tbaby[i], NULL , baby , &ba);
+	pthread_create(&tbaby[i], NULL , baby , &ba[i]);
 
 
 }
@@ -102,8 +101,9 @@ pthread_join(tparent, NULL);
 long *pbits_eaten;	// get baby bird's eating statistics
 for(int i = 0 ; i< B ; i++ ){
 	pthread_join(tbaby[i] , (void **)&pbits_eaten);
+	
 	printf ("\nNumber of bits of food eaten by baby %d / total of bits: %ld / %ld ",i  , *pbits_eaten, (F*R) );
-
+	*pbits_eaten = 0;
 }
 // Usar: printf ("\nNumber of bits of food eaten by baby %d / total of bits: %ld / %ld ", ? , ?, ? );
 
@@ -117,21 +117,24 @@ exit (0);
 
 
 void *parent(void *arg) {	// parent bird thread
-	struct parentarg pa ;
+	struct parentarg *pa = (struct parentarg * )arg;
+	
 	printf ("\n\tParent starting");
 
 // a preencher com o seu código:
-	int i;
-	long count = arg->r;
-		while(coutn != 0 ){
-			if(arg->working == 1){
+	
+	int count = pa->r;
+	printf ("\n\tParent received args f (%d), r (%ld), working (%d)", pa->f , pa->r  , pa->working );
+		while(count != 0 ){
+			if(foodbits == 0){
 
-				foodbits = arg->f;
-			
-				arg->working = 0;
+				pa->working = 1;
+				foodbits = pa->f;
+				count--;
+				pa->working = 0;
 			}
 			
-			count--;
+		pa->working = 0;	
 
 
 		}
@@ -139,7 +142,7 @@ void *parent(void *arg) {	// parent bird thread
 	finish = 1;
 
 // Usar: printf ("\n\tParent received args f (%d), r (%ld), working (%d)", ? , ? , ? );
-	printf ("\n\tParent received args f (%d), r (%ld), working (%d)", pa->f , pa->r  , pa->working );
+	
 	printf ("\n\tParent finishing");
 
 return NULL;
@@ -147,37 +150,41 @@ return NULL;
 
 
 void *baby(void *arg){	// baby thread
-	struct babyarg ba ;
+	struct babyarg *ba = (struct babyarg *) arg;
+
+
 
 	int count=0, *output = malloc(sizeof(int));
 
 	while(finish != 1){
-		if(pa-> working == 0 && foodbits ==0 ){
-			pa->working == 1;
-
-
+		if(foodbits != 0){
+			ba->eating=1;
+			foodbits--;
+			count++;
+			ba->eating = 0;
 		}
+		
+		ba->eating = 0;
 
-	else {
-		arg->eating = 1; 
-		foodbits--;
-		count++;
-
+		
 	}
 
 
-	}
-	*output = count;
+*output = count;
 // a preencher com o seu código:
 
 // Usar: printf ("\n   Baby bird %d beginning",? );
-	printf ("\n   Baby bird %d beginning", arg->id );
+	printf ("\n   Baby bird %d beginning", ba->id );
 // Usar: printf ("\n   Baby received args id (%d), eating (%d)",  , ? );
-	 printf ("\n   Baby received args id (%d), eating (%d)", arg->id , arg->eating);
+	 printf ("\n   Baby received args id (%d), eating (%d)", ba->id , ba->eating);
 // Usar: printf ("\n   Baby bird %d finishing", ? );
-	 printf ("\n   Baby bird %d finishing", arg->id );
+	 printf ("\n   Baby bird %d finishing", ba->id );
 
 
 // Usar: return (?);
 	 return (void*)output;
-} // baby()
+
+
+	}
+	
+ // baby()
